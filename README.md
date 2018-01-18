@@ -1,3 +1,4 @@
 # BoxFinder
-Locates yellow boxes and directs the user towards them
+Locates one yellow box and directs the user towards it
+
 Not functional yet
