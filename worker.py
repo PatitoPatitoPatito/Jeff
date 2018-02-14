@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 
+from __future__ import division
 import cv2
 import numpy as np
 import math
 import coordinates
+import utils
 
 #SHAPEZ
 ##################
@@ -29,11 +31,6 @@ corners = np.array(
 pts_dst = np.array( corners, np.float32 )
 #END SHAPEZ
 
-#dynamic variables rgb->bgr
-lower_yellow = np.array([20,100,0])
-upper_yellow = np.array([200,255,255])
-#lower_yellow = np.array([0,0,0])
-#upper_yellow = np.array([255,255,255])
 camera_width = 320
 camera_fov   = 60
 cube_width   = 42 #centimeters
@@ -48,15 +45,11 @@ coordinates   = coordinates.Coordinates()
 def process(picture):
         blurred = blur(picture)
         hsv = converttohsv(blurred)
-	cv2.imshow("hsv", hsv)
-	cv2.waitKey(27) & 0xFF == ord('q')
         cfilter = filterbycolor(hsv)
         masked = cv2.bitwise_and(blurred,blurred,mask=cfilter)
-        cv2.imshow("masked", masked)
-        cv2.waitKey(27) & 0xFF == ord('q')
         cX, cY, area = filterbyshape(masked)
         coordinates = getcoords2(cX, cY, area) #CHANGE TO ANGLE
-	angle = measurealpha(cX)
+#	angle = measurealpha(cX)
         return coordinates
 
 def blur(matrice):
@@ -66,7 +59,7 @@ def converttohsv(matrice):
 	return cv2.cvtColor(matrice, cv2.COLOR_BGR2HSV)
 
 def filterbycolor(matrice):
-	return cv2.inRange(matrice, lower_yellow, upper_yellow)
+	return cv2.inRange(matrice, utils.lower_yellow, utils.upper_yellow)
 
 def filterbyshape(matrice):
 
@@ -97,10 +90,6 @@ def filterbyshape(matrice):
 
 	return cX, cY, area
 
-def getkeypoints(matrice):
-	#TODO
-	return
-
 def measureangle(keypoint):
 	return (camera_middle - keypoint.pt.x) / camera_single
 
@@ -112,7 +101,7 @@ def measureangle2(cX):
 def measurealpha(cX):
         if (cX == -1):
                 return -1
-	return (camera_middle - cX) / camera_single
+	return float((camera_middle - cX) / camera_single)
 
 def measurebetta(smallest, biggest):
         if (smallest == -1 or biggest == -1):
@@ -150,6 +139,5 @@ def getcoords(keypoints):
 
 def getcoords2(cX, cY, area):
         coordinates.angle = measureangle2(cX)
-#        coordinates.distance = measuredistance2(cX, cY, area)
 	coordinates.distance = -1
         return coordinates

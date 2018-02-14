@@ -5,6 +5,7 @@ import sys
 import coordinates
 import threading
 import utils
+import time
 
 class Network:
         def __init__(self, ip, port):
@@ -13,7 +14,14 @@ class Network:
                 self.server_address = (ip, self.port)
 		self.number = 0
                 print("Attempting to connect to "+str(ip)+":"+str(self.port))
-                self.sock.connect(self.server_address)
+		while True:
+			try:
+                		self.sock.connect(self.server_address)
+				break
+			except:
+				print("Failed to connect! Retrying in 5s...")
+				time.sleep(5)
+
 
         def send(self, message):
                 def background():

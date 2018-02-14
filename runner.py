@@ -22,42 +22,34 @@ else:
 	rip = sys.argv[1]
 	dip = sys.argv[2]
 
+#utils.getchthread()
 print("Launched!")
 
-camera      = camera.Camera()
+camera = camera.Camera()
 
 #cconn       = network.Network(rip, utils.cport)
 #iconn       = network.Network(dip, utils.iport)
 #dconn       = network.Network(rip, utils.dport)
 
 coordinates = coordinates.Coordinates()
-latestproc  = -1
-
-def click_get_hsv(event, x, y, flags, param):
-        if event == cv2.EVENT_LBUTTONDOWN:
-                hsv = worker.converttohsv(storage.picture)
-                print("("+str(x)+","+str(y)+"): "+str(hsv[y][x]))
 
 def run():
 	mat = camera.tomat()
 	coordinates = worker.process(mat)
 	#cconn.send(str(coordinates))
 	print(str(coordinates))
-	bytes = utils.mattostr(mat)
-	#iconn.send(bytes)
-	latestproc = time.time()
-	coordinates.latest = latestproc
+	coordinates.latest = time.time()
+	matstr = utils.mattostr(mat)
+	#iconn.send(matstr)
 
 def background():
 	while True:
-#		try:
-			#if storage.latest <= time.time() and storage.latest != -1 and coordinates.latest < storage.latest:
-			#	run()
-			if camera.latest != -1:
+		try:
+			if camera.latest != -1 and camera.latest > coordinates.latest:
 				run()
-#		except:
-#			print("Error occurred")
-#			break
+		except:
+			print("Error occurred")
+			break
 
 runner = threading.Thread(target=background)
 runner.daemon = True

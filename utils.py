@@ -4,7 +4,10 @@ import sys
 import cv2
 import numpy as np
 import base64
+import threading
 
+lower_yellow = np.array([20,35,205])
+upper_yellow = np.array([50,150,255])
 camera = 1
 
 delay = 0.02
@@ -22,6 +25,17 @@ def getch():
         finally:
             termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
         return ch
+
+def _getchthread():
+	while True:
+		if getch() == 'q':
+			print("\nHALT")
+			sys.exit()
+
+def getchthread():
+	getch = threading.Thread(target=_getchthread)
+	getch.daemon = True
+	getch.start()
 
 def rprint(str):
 	sys.stdout.write('%s\r' % str)

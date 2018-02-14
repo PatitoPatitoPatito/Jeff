@@ -16,4 +16,5 @@ class Coordinates:
 
 	def __str__(self):
 		self.latest = time.time()
+		#return str(self.angle)
 		return str(self.angle)+","+str(self.distance)
