@@ -15,17 +15,17 @@ class Network:
                 print("Attempting to connect to "+str(ip)+":"+str(self.port))
                 self.sock.connect(self.server_address)
 
+	def background(self):
+		self.sock.sendall(message)
+
         def send(self, message):
                 def background():
-			length = len(message)
-			byto = utils.int_to_bytes(length, 4)
-			ba = bytearray()
-			ba.append(byto[0])
-                        ba.append(byto[1])
-                        ba.append(byto[2])
-                        ba.append(byto[3])
-			self.sock.send(ba)
-			self.sock.send(message)
+			try:
+				length = len(message)
+				byto = utils.int_to_bytes(length, 4)
+				self.sock.send(buffer(byto))
+				self.sock.send(message)
+			kkk
 
 		sender = threading.Thread(target=background)
 		sender.daemon = True

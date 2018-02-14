@@ -5,7 +5,7 @@ import numpy as np
 import math
 import coordinates
 
-#SHAPEZ
+#SHAPE FUCKER
 ##################
 IS_FOUND = 0
 
@@ -27,13 +27,13 @@ corners = np.array(
 )
 
 pts_dst = np.array( corners, np.float32 )
-#END SHAPEZ
+#END SHAPE FUCKEr
 
-#dynamic variables rgb->bgr
-lower_yellow = np.array([20,100,0])
-upper_yellow = np.array([200,255,255])
-#lower_yellow = np.array([0,0,0])
-#upper_yellow = np.array([255,255,255])
+#dynamic variables
+#lower_yellow = np.array([20,100,60])
+#upper_yellow = np.array([50,230,200])
+lower_yellow = np.array([0,0,0])
+upper_yellow = np.array([255,255,255])
 camera_width = 320
 camera_fov   = 60
 cube_width   = 42 #centimeters
@@ -45,22 +45,33 @@ camera_single = camera_width / camera_fov
 coordinates   = coordinates.Coordinates()
 
 #functions
-def process(picture):
+def process2(picture):
         blurred = blur(picture)
+	cv2.imshow("picture", picture)
+        cv2.waitKey(27) & 0xFF == ord('q')
         hsv = converttohsv(blurred)
-	cv2.imshow("hsv", hsv)
-	cv2.waitKey(27) & 0xFF == ord('q')
         cfilter = filterbycolor(hsv)
         masked = cv2.bitwise_and(blurred,blurred,mask=cfilter)
-        cv2.imshow("masked", masked)
-        cv2.waitKey(27) & 0xFF == ord('q')
         cX, cY, area = filterbyshape(masked)
-        coordinates = getcoords2(cX, cY, area) #CHANGE TO ANGLE
-	angle = measurealpha(cX)
+        #cv2.waitKey(27) & 0xFF == ord('q')
+        coordinates = getcoords2(cX, cY, area)
         return coordinates
+	#return None
+
+def process(picture): #TODO revise processing model
+	blurred = blur(picture)
+	cv2.imshow(blurred)
+	#hsv = converttohsv(blurred)
+	#cfilter = filterbycolor(hsv)
+	cv2.waitKey(27) & 0xFF == ord('q')
+	return hsv
+	#sfilter = filterbyshape(cfilter)
+	#keypoints = getkeypoints(sfilter)
+	#coordinates = getcoords(keypoints)
+	#return coordinates
 
 def blur(matrice):
-	return cv2.blur(matrice,(5,5))
+	return cv2.blur(matrice,(10,10))
 
 def converttohsv(matrice):
 	return cv2.cvtColor(matrice, cv2.COLOR_BGR2HSV)
@@ -72,7 +83,6 @@ def filterbyshape(matrice):
 
 	IS_FOUND = 0
 	cX, cY, area = -1, -1, -1
-	biggestarea = -1
 
 	rgb = matrice
 	gray = cv2.cvtColor( rgb, cv2.COLOR_BGR2GRAY )
@@ -81,14 +91,16 @@ def filterbyshape(matrice):
 	kernel = cv2.getStructuringElement( cv2.MORPH_RECT, ( MORPH, MORPH ) )
 	closed = cv2.morphologyEx( edges, cv2.MORPH_CLOSE, kernel )
 	h, contours, _ = cv2.findContours( closed, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE )
+	print(len(contours))
 	for cont in contours:
-		area = cv2.contourArea(cont)
-		if area > 5000 and area > 1.1 * biggestarea:
-			biggestarea = area
+		print(str(cv2.contourArea(cont)))
+		if cv2.contourArea ( cont ) > 5000 :
+			print("aaaaaaaaaa")
 			arc_len = cv2.arcLength( cont, True )
 			approx = cv2.approxPolyDP( cont, 0.1 * arc_len, True )
 			if ( len( approx ) >= 4 and len( approx ) <= 6 ):
 				IS_FOUND = 1
+				area = cv2.contourArea ( cont )
 				M = cv2.moments( cont )
 				cX = int(M["m10"] / M["m00"])
 				cY = int(M["m01"] / M["m00"])
@@ -149,7 +161,8 @@ def getcoords(keypoints):
 	return coords
 
 def getcoords2(cX, cY, area):
+#	coordinates = coordinates.Coordinates()
         coordinates.angle = measureangle2(cX)
-#        coordinates.distance = measuredistance2(cX, cY, area)
-	coordinates.distance = -1
+        coordinates.distance = measuredistance2(cX, cY, area)
+#	print(str(measureangle2(cX)))
         return coordinates

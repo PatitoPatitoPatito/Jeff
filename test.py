@@ -1,14 +1,32 @@
 #!/usr/bin/env python
 
-import cv2
-import camera
-import worker
+import threading
 import time
+import sys
 
-camera = camera.Camera()
+def getch():
+        import sys, tty, termios
+        fd = sys.stdin.fileno()
+        old_settings = termios.tcgetattr(fd)
+        try:
+            tty.setraw(sys.stdin.fileno())
+            ch = sys.stdin.read(1)
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+        return ch
 
-while 1==1:
-	raw_input()
-	mat = worker.process(camera.tomat())
-	cv2.imwrite("images/"+str(time.time())+".jpg", mat)
-	print("Picture taken and filtered")
+def background():
+	if getch() == 'q':
+		other_function()
+		sys.exit()
+
+def other_function():
+	print("disarmed")
+
+threading1 = threading.Thread(target=background)
+threading1.daemon = True
+threading1.start()
+
+while True:
+	time.sleep(1)
+	print("type disarm")
