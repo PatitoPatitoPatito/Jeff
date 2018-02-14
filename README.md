@@ -2,12 +2,16 @@
 
 This project was written for Demacia 5635 team for usage in the FRC 2018 robotics competition, but feel free to reuse whatever you may find useful in this code. I'm not sure that this is even functional as we haven't tested the code yet.
 
-In theory, detects the closest rectangular object that is colored within a pre defined color range, and sends a command to a user defined IP address with the appropriate coordinates
+In theory, detects the closest rectangular object that is colored within a pre defined color range, and sends a string to a user defined IP address with the appropriate angle
 
 
 TODO:
 
 - **Define the appropriate HSV range in worker.py for yellow objects**- this will obviously not work if this is not done
+
+- Find out why the angle is rounded
+
+- Send angle instead of coordinates (distance detection doesn't work very well)
 
 - Test on a real robot
 
