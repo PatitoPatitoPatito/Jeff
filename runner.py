@@ -22,25 +22,24 @@ else:
 	rip = sys.argv[1]
 	dip = sys.argv[2]
 
-#utils.getchthread()
 print("Launched!")
 
 camera = camera.Camera()
 
-#cconn       = network.Network(rip, utils.cport)
-#iconn       = network.Network(dip, utils.iport)
-#dconn       = network.Network(rip, utils.dport)
+cconn       = network.Network(rip, utils.cport)
+iconn       = network.Network(dip, utils.iport)
+dconn       = network.Network(rip, utils.dport)
 
 coordinates = coordinates.Coordinates()
 
 def run():
 	mat = camera.tomat()
 	coordinates = worker.process(mat)
-	#cconn.send(str(coordinates))
+	cconn.send(str(coordinates))
 	print(str(coordinates))
 	coordinates.latest = time.time()
 	matstr = utils.mattostr(mat)
-	#iconn.send(matstr)
+	iconn.send(matstr)
 
 def background():
 	while True:
