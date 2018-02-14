@@ -7,9 +7,12 @@ In theory, detects the closest rectangular object that is colored within a pre d
 
 TODO:
 
-- *Define the appropriate HSV range in worker.py for yellow objects*- this will obviously not work if this is not done
+- **Define the appropriate HSV range in worker.py for yellow objects**- this will obviously not work if this is not done
 
 - Test on a real robot
 
 
 In order to make it so that the coordinates are actually sent, lines 29-31, 44 and 47 need to be uncommented. For it to actually work, the server(s) need(s) to accept ports: 42069, 6969, 6666. 42069 for commands, 6969 for video and 6666 for debugging (not implemented yet but can be accessed simply by using dconn.sent("your desired string") in runner.py
+
+
+This is a slightly less cr@ppy redesign of the previously used code
