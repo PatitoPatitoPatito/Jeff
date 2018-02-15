@@ -2,7 +2,7 @@
 
 **V V V V V English below V V V V V**
 
-הפרוייקט נכתב בשביל Demacia 5635 לשם שימוש בתחרות הFRC 2018, תרגישו חופשי להשתמש במה שתמצאו לנכון. קחו בחשבון שאני לא בטוח שזה בכלל פועל כי עוד לא בדקנו את הקוד.
+תרגישו חופשי להשתמש במה שתמצאו לנכון. זה אמור לעבוד אם טווח הצבעים מוגדר כמו שצריך.
 
 בתיאוריה, נותן זווית לחפץ המרובע הכי קרוב (נקבע על ידי גודל) בתוך טווח צבעים מסויים, ושולח את זה לכתובת IP מוגדרת מראש.
 
@@ -21,7 +21,7 @@
 
 
 
-This project was written for Demacia 5635 team for usage in the FRC 2018 robotics competition, but feel free to reuse whatever you may find useful in this code. I'm not sure that this is even functional as we haven't tested the code yet.
+Feel free to reuse whatever you may find useful in this code. This is supposed to be functional if the colors range is set correctly.
 
 In theory, detects the closest rectangular object that is colored within a pre defined color range, and sends a string to a user defined IP address with the appropriate angle
 
