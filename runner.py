@@ -22,33 +22,38 @@ else:
 	rip = sys.argv[1]
 	dip = sys.argv[2]
 
+#utils.getchthread()
 print("Launched!")
 
 camera = camera.Camera()
 
-cconn       = network.Network(rip, utils.cport)
-iconn       = network.Network(dip, utils.iport)
-dconn       = network.Network(rip, utils.dport)
+#cconn       = network.Network(rip, utils.cport)
+#iconn       = network.Network(dip, utils.iport)
+#dconn       = network.Network(rip, utils.dport)
 
 coordinates = coordinates.Coordinates()
 
 def run():
 	mat = camera.tomat()
-	coordinates = worker.process(mat)
-	cconn.send(str(coordinates))
+	hsv,coordinates = worker.process(mat)
+	lineThickness = 2
+	cv2.line(hsv, (coordinates.distance, 0), (coordinates.distance, 240), (0,255,0), lineThickness)
+	#cv2.imshow('mat', mat)
+	#cv2.waitKey(27) & 0xFF == ord('q')
+#	cconn.send(str(coordinates))
 	print(str(coordinates))
 	coordinates.latest = time.time()
-	matstr = utils.mattostr(mat)
-	iconn.send(matstr)
+	matstr = utils.mattostr(hsv)
+#	iconn.send(matstr)
 
 def background():
 	while True:
-		try:
+		#try:
 			if camera.latest != -1 and camera.latest > coordinates.latest:
 				run()
-		except:
-			print("Error occurred")
-			break
+		#except:
+		#	print("Error occurred")
+		#	break
 
 runner = threading.Thread(target=background)
 runner.daemon = True

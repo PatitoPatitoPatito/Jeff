@@ -35,6 +35,7 @@ camera_width = 320
 camera_fov   = 60
 cube_width   = 42 #centimeters
 cube_height  = 69 #changethese
+lineThickness = 2
 
 #derived variables
 camera_middle = camera_width / 2
@@ -49,8 +50,15 @@ def process(picture):
         masked = cv2.bitwise_and(blurred,blurred,mask=cfilter)
         cX, cY, area = filterbyshape(masked)
         coordinates = getcoords2(cX, cY, area) #CHANGE TO ANGLE
+	cv2.line(hsv, (coordinates.distance, 0), (coordinates.distance, 240), (0,255,0), lineThickness)
+        cv2.line(masked, (coordinates.distance, 0), (coordinates.distance, 240), (0,255,0), lineThickness)
+
+        cv2.imshow("hsv", hsv)
+        cv2.waitKey(27) & 0xFF == ord('q')
+        cv2.imshow("masked", masked)
+        cv2.waitKey(27) & 0xFF == ord('q')
 #	angle = measurealpha(cX)
-        return coordinates
+        return masked,coordinates
 
 def blur(matrice):
 	return cv2.blur(matrice,(5,5))
@@ -76,7 +84,7 @@ def filterbyshape(matrice):
 	h, contours, _ = cv2.findContours( closed, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE )
 	for cont in contours:
 		area = cv2.contourArea(cont)
-		if area > 5000 and area > 1.1 * biggestarea:
+		if area > 4000 and area > 1.1 * biggestarea:
 			biggestarea = area
 			arc_len = cv2.arcLength( cont, True )
 			approx = cv2.approxPolyDP( cont, 0.1 * arc_len, True )
@@ -139,5 +147,5 @@ def getcoords(keypoints):
 
 def getcoords2(cX, cY, area):
         coordinates.angle = measureangle2(cX)
-	coordinates.distance = -1
+	coordinates.distance = cX
         return coordinates
