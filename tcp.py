@@ -11,6 +11,7 @@ class Tcp:
 	def __init__(self, port):
 		self.server_address = ('localhost', port)
 #		self.number = 0
+		self.dip = None
 
 	def start(self):
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -31,12 +32,13 @@ class Tcp:
 				while True:
 					self.data = self.connection.recv(65536)
 #					self.number += 1
-					cv2.imwrite("images/"+str(time.time())+".jpg", utils.strtomat(self.data))
+					self.dip = self.data
 					#print >>sys.stderr, 'Received "%s"' % self.data
 #					print("Received " + self.number + " image(s)")
-					print("Received image")
+					print("Received IP " + self.dip)
 					if self.data:
 						self.connection.sendall(self.data)
+						self.halt()
 					else:
 						break
 

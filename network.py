@@ -9,17 +9,24 @@ import time
 
 class Network:
         def __init__(self, ip, port):
-                self.port = port
                 self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                self.server_address = (ip, self.port)
-		self.number = 0
-                print("Attempting to connect to "+str(ip)+":"+str(self.port))
+                self.server_address = (ip, port)
+		self.alive = False
+
+	def connect(self):
+                print("Attempting to connect to "+str(self.server_address[0])+":"+str(self.server_address[1]))
 		while True:
 			try:
+				print("Successfully connected!")
                 		self.sock.connect(self.server_address)
+				self.alive = True
 				break
 			except:
-				print("Failed to connect! Retrying in 5s...")
+				if self.server_address[0] == '10.56.35.2':
+					dest = "roboRIO"
+				else:
+					dest = "DriverStation"
+				print("Failed to connect! Retrying reconnection to " + dest + " in 5s...")
 				time.sleep(5)
 
 
@@ -32,9 +39,16 @@ class Network:
                         ba.append(byto[1])
                         ba.append(byto[2])
                         ba.append(byto[3])
-			self.sock.send(ba)
-			self.sock.send(message)
+			try:
+				self.sock.send(ba)
+				self.sock.send(message)
+			except:
+				print("Connection seems to have died!")
+				self.alive = False
 
 		sender = threading.Thread(target=background)
 		sender.daemon = True
 		sender.start()
+
+	def halt(self):
+		self.sock.close()

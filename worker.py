@@ -32,10 +32,11 @@ pts_dst = np.array( corners, np.float32 )
 #END SHAPEZ
 
 camera_width = 320
+camera_height = 240
 camera_fov   = 60
+kavua = 10.52
 cube_width   = 42 #centimeters
 cube_height  = 69 #changethese
-lineThickness = 2
 
 #derived variables
 camera_middle = camera_width / 2
@@ -45,23 +46,27 @@ coordinates   = coordinates.Coordinates()
 #functions
 def process(picture):
         blurred = blur(picture)
-        hsv = converttohsv(blurred)
+	border = addborder(blurred,6,[255,255,255])
+        hsv = converttohsv(border)
         cfilter = filterbycolor(hsv)
-        masked = cv2.bitwise_and(blurred,blurred,mask=cfilter)
-        cX, cY, area = filterbyshape(masked)
-        coordinates = getcoords2(cX, cY, area) #CHANGE TO ANGLE
-	cv2.line(hsv, (coordinates.distance, 0), (coordinates.distance, 240), (0,255,0), lineThickness)
-        cv2.line(masked, (coordinates.distance, 0), (coordinates.distance, 240), (0,255,0), lineThickness)
-
-        cv2.imshow("hsv", hsv)
-        cv2.waitKey(27) & 0xFF == ord('q')
-        cv2.imshow("masked", masked)
-        cv2.waitKey(27) & 0xFF == ord('q')
-#	angle = measurealpha(cX)
+	finversed = cv2.bitwise_not(cfilter)
+        masked = cv2.bitwise_and(blurred,blurred,mask=finversed)
+        cX, cY, area = filterbyshape(cfilter)
+	coordinates = getcoords(cX)
         return masked,coordinates
 
 def blur(matrice):
 	return cv2.blur(matrice,(5,5))
+
+def addborder(matrice, size, color):
+	for s in range(0,size):
+		for x in range(0,camera_width-s):
+			matrice[0+s,x]=color
+			matrice[camera_height-1-s,x]=color
+		for y in range(0,240-s):
+			matrice[y,0+s]=color
+			matrice[y,camera_width-1-s]=color
+	return matrice
 
 def converttohsv(matrice):
 	return cv2.cvtColor(matrice, cv2.COLOR_BGR2HSV)
@@ -72,19 +77,21 @@ def filterbycolor(matrice):
 def filterbyshape(matrice):
 
 	IS_FOUND = 0
-	cX, cY, area = -1, -1, -1
+	cX, cY, area = -900, -1, -1
 	biggestarea = -1
 
 	rgb = matrice
-	gray = cv2.cvtColor( rgb, cv2.COLOR_BGR2GRAY )
-	gray = cv2.bilateralFilter( gray, 1, 10, 120 )
+#	gray = cv2.cvtColor( rgb, cv2.COLOR_BGR2GRAY )
+#	gray = cv2.bilateralFilter( gray, 1, 10, 120 )
 	edges  = cv2.Canny( matrice, 10, CANNY )
 	kernel = cv2.getStructuringElement( cv2.MORPH_RECT, ( MORPH, MORPH ) )
 	closed = cv2.morphologyEx( edges, cv2.MORPH_CLOSE, kernel )
-	h, contours, _ = cv2.findContours( closed, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE )
+	contours, h = cv2.findContours( closed, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE )
 	for cont in contours:
 		area = cv2.contourArea(cont)
-		if area > 4000 and area > 1.1 * biggestarea:
+		if area > 0.9*camera_height*camera_width:
+			return camera_middle,0,area
+		if area > 2050 and area > 1.1 * biggestarea:
 			biggestarea = area
 			arc_len = cv2.arcLength( cont, True )
 			approx = cv2.approxPolyDP( cont, 0.1 * arc_len, True )
@@ -135,7 +142,13 @@ def measuredistance2(smallest, biggest, cX):
         distance_x   = (distance_x_1 + distance_x_2) / 2
         return distance_x
 
-def getcoords(keypoints):
+def measuredistance3(area):
+	total=76800
+	proportion=total/area
+	return proportion/kavua
+
+
+'''def getcoords(keypoints):
 	#coordinates = Coordinates()
 	if (keypoints.size() != 1):
 		coordinates.angle    = -1
@@ -143,9 +156,9 @@ def getcoords(keypoints):
 		return coords
 	coordinates.angle    = measureangle(keypoints[0])
 	coordinates.distance = measuredistance(keypoints[0])
-	return coords
+	return coords'''
 
-def getcoords2(cX, cY, area):
-        coordinates.angle = measureangle2(cX)
-	coordinates.distance = cX
-        return coordinates
+def getcoords(cX):
+	coordinates.angle = measureangle2(cX)
+	coordinates.cX    = cX
+	return coordinates

@@ -9,14 +9,20 @@ import utils
 class Camera:
 
 	def __init__(self):
-		self.capture = cv2.VideoCapture(utils.camera)
-		self.capture.set(3, 320)
-		self.capture.set(4, 240)
-		self.capture.set(cv2.CAP_PROP_FPS, 25)
-		self.latest = -1
-		self.mat = None
-		self._startthread()
-		print("Started camera service")
+		while True:
+			#try:
+				self.capture = cv2.VideoCapture(utils.camera)
+				self.capture.set(3, 320)
+				self.capture.set(4, 240)
+				#self.capture.set(cv2.CAP_PROP_FPS, 25)
+				self.latest = -1
+				self.mat = None
+				self._startthread()
+				print("Started camera service")
+				break
+			#except:
+			#	print("Failed to connect to camera! Retrying in 5s...")
+			#	time.sleep(5)
 
 	def _start(self):
 		while True:
