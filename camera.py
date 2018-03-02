@@ -15,7 +15,7 @@ class Camera:
 				self.capture.set(3, 320)
 				self.capture.set(4, 240)
 				#self.capture.set(cv2.CAP_PROP_FPS, 25)
-				self.latest = -1
+				self.latest = -100
 				self.mat = None
 				self._startthread()
 				print("Started camera service")

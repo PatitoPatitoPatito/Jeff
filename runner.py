@@ -46,5 +46,5 @@ while True:
 	cconn.connect()
 	iconn.connect()
 	while iconn.alive and cconn.alive:
-		if camera.latest != -1 and camera.latest > coordinates.latest:
+		if camera.latest != -100 and camera.latest > coordinates.latest:
 			run()
