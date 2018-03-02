@@ -34,10 +34,8 @@ coordinates = coordinates.Coordinates()
 
 def run():
 	mat = camera.tomat()
-	picture,coordinates = worker.process(mat)
-	lineThickness = 2
-	cv2.line(picture, (coordinates.cX, 0), (coordinates.cX, 240), (0,255,0), lineThickness)
-	cconn.send(str(coordinates.angle))
+	coordinates = worker.process(mat)
+	cconn.send(str(coordinates))
 	coordinates.latest = time.time()
 	matstr = utils.mattostr(picture)
 	iconn.send(matstr)

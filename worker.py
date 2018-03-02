@@ -3,19 +3,18 @@
 from __future__ import division
 import cv2
 import numpy as np
+import numpy
 import math
 import coordinates
 import utils
 
 #SHAPEZ
 ##################
-IS_FOUND = 0
-
 MORPH = 7
 CANNY = 250
 ##################
-_width  = 480.0
-_height = 320.0
+_width  = 320
+_height = 240
 _margin = 0.0
 ##################
 
@@ -31,41 +30,49 @@ corners = np.array(
 pts_dst = np.array( corners, np.float32 )
 #END SHAPEZ
 
-camera_width = 320
-camera_height = 240
-camera_fov   = 60
-kavua = 10.52
-cube_width   = 42 #centimeters
-cube_height  = 69 #changethese
+_fov           = 60
+_meterdiff     = 95
 
 #derived variables
-camera_middle = camera_width / 2
-camera_single = camera_width / camera_fov
+_area   = _width * _height
+_middle = _width / 2
+_single = _width / _fov
+
 coordinates   = coordinates.Coordinates()
 
 #functions
 def process(picture):
-        blurred = blur(picture)
-	border = addborder(blurred,6,[255,255,255])
-        hsv = converttohsv(border)
-        cfilter = filterbycolor(hsv)
-	finversed = cv2.bitwise_not(cfilter)
-        masked = cv2.bitwise_and(blurred,blurred,mask=finversed)
-        cX, cY, area = filterbyshape(cfilter)
-	coordinates = getcoords(cX)
-        return masked,coordinates
+	blurred = blur(picture)
+	border = addborder(blurred, 1, [255,255,255])
+	hsv = converttohsv(border)
+	cfilter = filterbycolor(hsv)
+	masked = cv2.bitwise_and(blurred,blurred,mask=cfilter)
+	contours = findinnercontours(masked)
+	rectcont = findmaxrectangle(contours)
+	if rectcont.any() != None:
+		cX   = findcenter(rectcont)
+		diff = finddiff(rectcont)
+		coordinates = getcoords(cX, diff)
+		directtorect(picture, cX)
+		return coordinates
+	else:
+		return coordinates.Coordinates()
 
 def blur(matrice):
 	return cv2.blur(matrice,(5,5))
 
+def sharpen(matrice):
+	kernel = np.array([[-1,-1,-1], [-1,9,-1], [-1,-1,-1]])
+	return cv2.filter2D(matrice, -1, kernel)
+
 def addborder(matrice, size, color):
 	for s in range(0,size):
-		for x in range(0,camera_width-s):
+		for x in range(0,_width-s):
 			matrice[0+s,x]=color
-			matrice[camera_height-1-s,x]=color
+			matrice[_height-1-s,x]=color
 		for y in range(0,240-s):
 			matrice[y,0+s]=color
-			matrice[y,camera_width-1-s]=color
+			matrice[y,_width-1-s]=color
 	return matrice
 
 def converttohsv(matrice):
@@ -74,91 +81,62 @@ def converttohsv(matrice):
 def filterbycolor(matrice):
 	return cv2.inRange(matrice, utils.lower_yellow, utils.upper_yellow)
 
-def filterbyshape(matrice):
+def medianCanny(matrice, thresh1, thresh2):
+	median = numpy.median(matrice)
+	matrice = cv2.Canny(matrice, int(thresh1 * median), int(thresh2 * median))
+	return matrice
 
-	IS_FOUND = 0
-	cX, cY, area = -900, -1, -1
-	biggestarea = -1
+def findinnercontours(matrice):
+	blue, green, red = cv2.split(matrice)
 
-	rgb = matrice
-#	gray = cv2.cvtColor( rgb, cv2.COLOR_BGR2GRAY )
-#	gray = cv2.bilateralFilter( gray, 1, 10, 120 )
-	edges  = cv2.Canny( matrice, 10, CANNY )
-	kernel = cv2.getStructuringElement( cv2.MORPH_RECT, ( MORPH, MORPH ) )
-	closed = cv2.morphologyEx( edges, cv2.MORPH_CLOSE, kernel )
-	contours, h = cv2.findContours( closed, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE )
-	for cont in contours:
-		area = cv2.contourArea(cont)
-		if area > 0.9*camera_height*camera_width:
-			return camera_middle,0,area
-		if area > 2050 and area > 1.1 * biggestarea:
-			biggestarea = area
-			arc_len = cv2.arcLength( cont, True )
-			approx = cv2.approxPolyDP( cont, 0.1 * arc_len, True )
-			if ( len( approx ) >= 4 and len( approx ) <= 6 ):
-				IS_FOUND = 1
-				M = cv2.moments( cont )
-				cX = int(M["m10"] / M["m00"])
-				cY = int(M["m01"] / M["m00"])
-				pts_src = np.array( approx, np.float32 )
-			else : pass
+	blue_edges = medianCanny(blue, 0.2, 0.3)
+	green_edges = medianCanny(green, 0.2, 0.3)
+	red_edges = medianCanny(red, 0.2, 0.3)
 
-	return cX, cY, area
+	edges = blue_edges | green_edges | red_edges
+	kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (MORPH, MORPH))
+	closed = cv2.morphologyEx(edges, cv2.MORPH_CLOSE, kernel)
 
-def measureangle(keypoint):
-	return (camera_middle - keypoint.pt.x) / camera_single
+	hierarchy, contours, _ = cv2.findContours(closed, cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+	return contours[1:]
 
-def measureangle2(cX):
-	if (cX == -1):
-                return -1
-	return (camera_middle - cX) / camera_single
+def findmaxrectangle(contours):
+	maxrect = None
+	maxarea = _area * 0.03
 
-def measurealpha(cX):
-        if (cX == -1):
-                return -1
-	return float((camera_middle - cX) / camera_single)
+	for contour in contours:
+		area  = cv2.contourArea(contour)
+		if area >= maxarea:
+			bound = cv2.contourArea(np.int0(cv2.boxPoints(cv2.minAreaRect(contour))))
+			if area >= 0.85 * bound:
+				maxrect = contour
+				maxarea = area
 
-def measurebetta(smallest, biggest):
-        if (smallest == -1 or biggest == -1):
-                return -1
-        return (biggest - smallest) / camera_single
+	return maxrect
 
-def measuredistance(keypoint):
-        #TODO
-	return -1
+def findcenter(contour):
+	M  = cv2.moments(contour)
+	cX = int(M["m10"] / M["m00"])
 
-def measuredistance2(smallest, biggest, cX):
-        if (smallest == -1 or biggest == -1 or cX == -1):
-                return -1
-	if (smallest > biggest):
-		tmp = smallest
-		smallest = biggest
-		biggest = tmp
+	return cX
 
-        alpha = measurealpha(cX)
-        betta = measurebetta(smallest, biggest)
-        distance_x_1 = (cube_width * betta) / math.sin(math.radians(90 - alpha - betta))
-        distance_x_2 = (cube_width * betta) / math.sin(math.radians(90+alpha))
-        distance_x   = (distance_x_1 + distance_x_2) / 2
-        return distance_x
+def finddiff(contour):
+	top    = tuple(contour[contour[:, :, 1].argmin()][0])
+	bottom = tuple(contour[contour[:, :, 1].argmin()][0])
+	return bottom[1] - top[1]
 
-def measuredistance3(area):
-	total=76800
-	proportion=total/area
-	return proportion/kavua
+def measureangle(cX):
+	return (_middle - cX) / _single
 
+def measuredistance(diff):
+	if diff == 0:
+		return 0
+        return meterdiff / diff
 
-'''def getcoords(keypoints):
-	#coordinates = Coordinates()
-	if (keypoints.size() != 1):
-		coordinates.angle    = -1
-		coordinates.distance = -1
-		return coords
-	coordinates.angle    = measureangle(keypoints[0])
-	coordinates.distance = measuredistance(keypoints[0])
-	return coords'''
-
-def getcoords(cX):
-	coordinates.angle = measureangle2(cX)
-	coordinates.cX    = cX
+def getcoords(cX, diff):
+	coordinates.angle = measureangle(cX)
+	coordinates.distance = measuredistance(diff)
 	return coordinates
+
+def directtorect(picture, cX):
+	cv2.line(picture, (cX, 0), (cX, 240), (0,255,0), 2)
