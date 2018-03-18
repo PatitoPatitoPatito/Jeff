@@ -12,6 +12,8 @@ TODO:
 
 - Send camera input to a server
 
+- Find out why the object isn't detected although it is when I run this on my laptop
+
 - Implement proportional control and periodic moving
 
 - Fix distance detection
