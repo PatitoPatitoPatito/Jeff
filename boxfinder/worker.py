@@ -2,6 +2,7 @@
 
 from __future__ import division
 import cv2
+import camera
 import numpy as np
 import numpy
 import math
@@ -31,8 +32,8 @@ corners = np.array(
 pts_dst = np.array( corners, np.float32 )
 #END SHAPEZ
 
-_fov           = 60
-_meterdiff     = 95
+_fov           = camera.fov
+_meterdiff     = utils.meterdiff
 
 #derived variables
 _area   = _width * _height
@@ -52,10 +53,9 @@ def process(picture):
 		cX   = findcenter(rectcont)
 		diff = finddiff(rectcont)
 		coords = getcoords(cX, diff)
-		directtorect(picture, cX)
-		return masked, coords
+		return cfilter, coords, cX
 	else:
-		return masked, coordinates.Coordinates()
+		return cfilter, coordinates.Coordinates(), -1
 
 def blur(matrice):
 	return cv2.blur(matrice,(5,5))
@@ -96,13 +96,12 @@ def findinnercontours(matrice):
 	kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (MORPH, MORPH))
 	closed = cv2.morphologyEx(edges, cv2.MORPH_CLOSE, kernel)
 
-#	hierarchy, contours, _ = cv2.findContours(closed, cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
 	hierarchy, contours, _ = cv2.findContours(closed, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
 	return contours
 
 def boundcontours(picture, contours):
 	for contour in contours:
-		if cv2.contourArea(contour) > _area * 0.05:
+		if cv2.contourArea(contour) > _area * 0.03:
 			rectangle = cv2.boundingRect(contour)
 			x,y,w,h = rectangle
 			cv2.rectangle(picture,(x,y),(x+w,y+h),(0,255,0),2)
@@ -128,7 +127,7 @@ def findcenter(contour):
 
 def finddiff(contour):
 	top    = tuple(contour[contour[:, :, 1].argmin()][0])
-	bottom = tuple(contour[contour[:, :, 1].argmin()][0])
+	bottom = tuple(contour[contour[:, :, 1].argmax()][0])
 	return bottom[1] - top[1]
 
 def measureangle(cX):
@@ -137,13 +136,19 @@ def measureangle(cX):
 def measuredistance(diff):
 	if diff == 0:
 		return 0
-        return meterdiff / diff
+        return _meterdiff / diff
 
 def getcoords(cX, diff):
-	coordinates.angle    = measureangle(cX)
-	coordinates.distance = measuredistance(diff)
-	coordinates.latest   = time.time()
-	return coordinates
+	coords          = coordinates.Coordinates()
+	coords.angle    = measureangle(cX)
+	coords.distance = measuredistance(diff)
+	coords.latest   = time.time()
+	return coords
 
 def directtorect(picture, cX):
-	cv2.line(picture, (cX, 0), (cX, 240), (0,255,0), 2)
+	if cX != -1:
+		cv2.line(picture, (cX, 0), (cX, 240), (0,255,0), 2)
+	return picture
+
+def hidecolor(picture, mask):
+	return cv2.bitwise_not(picture,picture,mask=mask)

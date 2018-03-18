@@ -15,11 +15,12 @@ class Values:
 		self.custom  = None
 		self.camera = camera.Camera()
 		self.coordinates = coordinates.Coordinates()
+		self.cX = -1
 		self._startthread()
 
 	def _gather(self):
         	self.picture = self.camera.tomat()
-        	self.custom, self.coordinates = worker.process(self.picture)
+        	self.custom, self.coordinates, self.cX = worker.process(self.picture)
 
 	def _thread(self):
 		print("Started gathering values!")

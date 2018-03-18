@@ -6,6 +6,8 @@ import numpy as np
 import base64
 import threading
 
+meterdiff = 90
+
 lower = np.array([0,0,245])
 upper = np.array([32,135,255])
 

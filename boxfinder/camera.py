@@ -6,6 +6,8 @@ import time
 import threading
 import utils
 
+fov = 60
+
 class Camera:
 
 	def __init__(self):
