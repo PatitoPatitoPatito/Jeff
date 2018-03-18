@@ -36,9 +36,10 @@ _fov           = camera.fov
 _meterdiff     = utils.meterdiff
 
 #derived variables
-_area   = _width * _height
-_middle = _width / 2
-_single = _width / _fov
+_area    = _width * _height
+_middle  = _width / 2
+_single  = _width / _fov
+_minsize = _area * 0.01
 
 #functions
 def process(picture):
@@ -52,6 +53,7 @@ def process(picture):
 	if rectcont is not None:
 		cX   = findcenter(rectcont)
 		diff = finddiff(rectcont)
+		#print(str(diff))
 		coords = getcoords(cX, diff)
 		return cfilter, coords, cX
 	else:
@@ -78,7 +80,9 @@ def converttohsv(matrice):
 	return cv2.cvtColor(matrice, cv2.COLOR_BGR2HSV)
 
 def filterbycolor(matrice):
-	return cv2.inRange(matrice, utils.lower, utils.upper)
+	mask1 = cv2.inRange(matrice, utils.lower_1, utils.upper_1)
+	mask2 = cv2.inRange(matrice, utils.lower_2, utils.upper_2)
+	return cv2.addWeighted(mask1,1,mask2,1,0)
 
 def medianCanny(matrice, thresh1, thresh2):
 	median = numpy.median(matrice)
@@ -101,14 +105,14 @@ def findinnercontours(matrice):
 
 def boundcontours(picture, contours):
 	for contour in contours:
-		if cv2.contourArea(contour) > _area * 0.03:
+		if cv2.contourArea(contour) > _minsize:
 			rectangle = cv2.boundingRect(contour)
 			x,y,w,h = rectangle
 			cv2.rectangle(picture,(x,y),(x+w,y+h),(0,255,0),2)
 
 def findmaxrectangle(contours):
 	maxrect = None
-	maxarea = _area * 0.03
+	maxarea = _minsize
 
 	for contour in contours:
 		area  = cv2.contourArea(contour)

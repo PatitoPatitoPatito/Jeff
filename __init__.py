@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-__title__ = 'Controller'
+__title__ = 'Car'
 __version__ = '0.1.1'
 __author__ = 'MisterKozo'
 __license__ = 'GNU 3.0'
 
-from values import Values
+from car import Car
