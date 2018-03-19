@@ -13,7 +13,7 @@ upper_1 = np.array([180,220,255])
 lower_2 = np.array([0,50,150])
 upper_2 = np.array([10,220,255])
 
-camera = 0
+camera = 1
 
 delay = 0.02
 cport = 42069

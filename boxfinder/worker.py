@@ -117,10 +117,13 @@ def findmaxrectangle(contours):
 	for contour in contours:
 		area  = cv2.contourArea(contour)
 		if area >= maxarea:
-			bound = cv2.contourArea(np.int0(cv2.boxPoints(cv2.minAreaRect(contour))))
+			arc_len = cv2.arcLength(contour, True)
+			approx = cv2.approxPolyDP(contour, 0.1 * arc_len, True)
+#			bound = cv2.contourArea(np.int0(cv2.boxPoints(cv2.minAreaRect(contour))))
 #			if area >= 0.85 * bound:
-			maxrect = contour
-			maxarea = area
+			if len(approx) == 4:
+				maxrect = contour
+				maxarea = area
 
 	return maxrect
 
