@@ -4,86 +4,85 @@ import RPi.GPIO as GPIO
 import cario
 import time
 from enum import Enum
+from direction import *
 
-IOPIN_SWITCH_F = 11
-IOPIN_SWITCH_B = 13
+IOPIN_SWITCH_F = 18 #11
+IOPIN_SWITCH_B = 22 #13
 IOPIN_SWITCH_L = 15
 IOPIN_SWITCH_R = 16
 
-class Direction(Enum):
-	H = 0
-	F = 1
-	R = 2
-	B = 3
-	L = 4
-	FL = 5
-	FR = 6
-	BR = 7
-	BL = 8
-
 class Movement:
 	def __init__(self):
+		self.dir = -1
 		GPIO.setmode(GPIO.BOARD)
 		self.IOPIN_F = cario.CARIO(IOPIN_SWITCH_F)
 		self.IOPIN_B = cario.CARIO(IOPIN_SWITCH_B)
 		self.IOPIN_L = cario.CARIO(IOPIN_SWITCH_L)
 		self.IOPIN_R = cario.CARIO(IOPIN_SWITCH_R)
-		self.halt()
-		self.dir = Direction.H
+		self.dirY = DirY.H
+		self.dirX = DirX.H
 
-	def stopForward(self):
-		self.IOPIN_F.OFF()
+	def stopY(self):
+		if self.dirY != DirY.H:
+			#print("released y")
+			self.IOPIN_F.OFF()
+			self.IOPIN_B.OFF()
+			self.dirY = DirY.H
 
-	def stopBackward(self):
-		self.IOPIN_B.OFF()
-
-	def stopLeft(self):
-		self.IOPIN_L.OFF()
-
-	def stopRight(self):
-		self.IOPIN_R.OFF()
+	def stopX(self):
+		if self.dirX != DirX.H:
+			#print("released x")
+			self.IOPIN_L.OFF()
+			self.IOPIN_R.OFF()
+			self.dirX = DirX.H
 
 	def halt(self):
-		self.stopForward()
-		self.stopBackward()
-		self.stopLeft()
-		self.stopRight()
+		self.stopY()
+		self.stopX()
 
 	def moveForward(self):
-		self.halt()
-		self.IOPIN_F.ON()
-		self.dir = Direction.F
+		if self.dirY != DirY.F:
+			print("forward")
+			self.IOPIN_B.OFF()
+			self.IOPIN_F.ON()
+			self.dirY = DirY.F
 
 	def moveBackward(self):
-		self.halt()
-		self.IOPIN_B.ON()
-		self.dir = Direction.B
+		if self.dirY != DirY.B:
+			print("backward")
+			self.IOPIN_F.OFF()
+			self.IOPIN_B.ON()
+			self.dirY = DirY.B
 
 	def turnLeft(self):
-		self.IOPIN_L.ON()
+		if self.dirX != DirX.L:
+			print("left")
+			self.IOPIN_R.OFF()
+			self.IOPIN_L.ON()
+			self.dirX = DirX.L
 
 	def turnRight(self):
-		self.IOPIN_R.ON()
+		if self.dirX != DirX.R:
+			print("right")
+			self.IOPIN_L.OFF()
+			self.IOPIN_R.ON()
+			self.dirX = DirX.R
 
 	def moveForwardLeft(self):
 		self.moveForward()
 		self.turnLeft()
-		self.dir = Direction.FL
 
 	def moveBackwardLeft(self):
 		self.moveBackward()
 		self.turnLeft()
-		self.dir = Direction.BL
 
 	def moveForwardRight(self):
 		self.moveForward()
 		self.turnRight()
-		self.dir = Direction.FR
 
 	def moveBackwardRight(self):
 		self.moveBackward()
 		self.turnRight()
-		self.dir = Direction.BR
 
 	def moveForwardFor(self, delay):
 		self.moveForward()

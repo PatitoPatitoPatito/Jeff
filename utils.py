@@ -8,10 +8,10 @@ import threading
 
 meterdiff = 95
 
-lower_1 = np.array([170,100,120])
+lower_1 = np.array([170,100,90])
 upper_1 = np.array([180,235,255])
-lower_2 = np.array([0,100,120])
-upper_2 = np.array([5,235,255])
+lower_2 = np.array([0,50,90])
+upper_2 = np.array([8,235,255])
 
 camera = 0
 fov = 60

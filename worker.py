@@ -2,13 +2,13 @@
 
 from __future__ import division
 import cv2
-import camera
 import numpy as np
 import numpy
 import math
+import time
+
 import coordinates
 import utils
-import time
 
 #SHAPEZ
 ##################
@@ -32,7 +32,7 @@ corners = np.array(
 pts_dst = np.array( corners, np.float32 )
 #END SHAPEZ
 
-_fov           = camera.fov
+_fov           = utils.fov
 _meterdiff     = utils.meterdiff
 
 #derived variables
@@ -43,21 +43,23 @@ _minsize = _area * 0.01
 
 #functions
 def process(picture):
+#	original = picture.copy()
 	blurred = blur(picture)
-	border = addborder(blurred, 6, [0,0,0])
-	hsv = converttohsv(border)
+	#border = addborder(blurred, 6, [0,0,0])
+	hsv = converttohsv(blurred)
 	cfilter = filterbycolor(hsv)
 	masked = cv2.bitwise_and(blurred,blurred,mask=cfilter)
 	contours = findinnercontours(masked)
 	rectcont = findmaxrectangle(contours)
+	inv = cv2.bitwise_not(blurred,blurred,mask=cfilter)
 	if rectcont is not None:
 		cX   = findcenter(rectcont)
 		diff = finddiff(rectcont)
-		#print(str(diff))
+#		print(str(diff))
 		coords = getcoords(cX, diff)
-		return cfilter, coords, cX
+		return directtorect(inv, cX), coords, cX
 	else:
-		return cfilter, coordinates.Coordinates(), -1
+		return inv, coordinates.Coordinates(), -1
 
 def blur(matrice):
 	return cv2.blur(matrice,(5,5))
@@ -138,7 +140,7 @@ def finddiff(contour):
 	return bottom[1] - top[1]
 
 def measureangle(cX):
-	return (_middle - cX) / _single
+	return (cX - _middle) / _single
 
 def measuredistance(diff):
 	if diff == 0:

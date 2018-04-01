@@ -6,29 +6,29 @@ import time
 import threading
 import utils
 
-fov = 60
+fov=60
 
 class Camera:
-
 	def __init__(self):
 		while True:
-			#try:
+			try:
 				self.capture = cv2.VideoCapture(utils.camera)
 				self.capture.set(3, 320)
 				self.capture.set(4, 240)
-				#self.capture.set(cv2.CAP_PROP_FPS, 25)
-				self.latest = -200
+				self.capture.set(cv2.CAP_PROP_FPS, 12)
+				self.latest = -1
 				self.mat = None
 				self._startthread()
+				if not self.works():
+					raise Exception("Camera is unusable")
 				print("Started camera service")
 				break
-			#except:
-			#	print("Failed to connect to camera! Retrying in 5s...")
-			#	time.sleep(5)
+			except:
+				print("Failed to connect to camera! Retrying in 2s...")
+				time.sleep(2)
 
 	def _start(self):
 		while True:
-			time.sleep(utils.delay)
 			self.mat    = self.capture.read()[1]
 			self.latest = time.time()
 
@@ -40,13 +40,10 @@ class Camera:
 	def tomat(self):
 		return self.mat
 
-	def tofile(self, *args):
-		if (len(args) != 1):
-			filename = str(time.time())+".jpg"
-		else:
-			filename = args[0]
-		cv2.imwrite("images/"+filename, self.tomat())
-		print("Captured to " + filename)
+	def works(self):
+		if self.capture is None or not self.capture.isOpened():
+			return False
+		return True
 
 	def release(self):
 		self.capture.release()

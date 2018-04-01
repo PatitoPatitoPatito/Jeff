@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 
-import movement
+#import movement
+import cario
+import time
+import RPi.GPIO as GPIO
 
-car = movement.Movement()
-car.moveForwardLeftFor(0.5)
+GPIO.setmode(GPIO.BOARD)
+pin = cario.CARIO(22)
+pin.ON()
+time.sleep(3)
+pin.OFF()
