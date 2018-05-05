@@ -8,39 +8,37 @@ import coordinates
 
 class Values:
 	def __init__(self):
-		self._lastdata  = -100
-		self._lastacted = -200
-		self._angle     = -100
-		self._distance  = -100
+		self._lastdata   = -100
+		self._lastacted  = -200
+		self._movingfrom = -100
+		self._angle      = -100
+		self._distance   = -100
 
 		self.car = movement.Movement()
 
-		self._needtostop = False
-	#	self.targetThread = None
-	#	self._startthread()
+		self._moving = False
 
 	def _goToTarget(self):
-		#print("Going to target with angle " + str(self._angle))
-		if self._lastdata > self._lastacted and self._distance > 1:
-			#dontactbelowangle = 2 / self._distance
-			if self._angle < -4.5:
-				self.car.moveForwardLeftFor(0.15)
-				self._needtostop = True
-				print("Going forward-left with angle " + str(self._angle))
-			elif self._angle > 4.5:
-				self.car.moveForwardRightFor(0.15)
-				self._needtostop = True
-				print("Going forward-right with angle " + str(self._angle))
+		if self._distance > 0.4:
+			goodangle = 0.6*self._distance #bigger parameter->turns less
+			if self._angle < -goodangle:
+				self.car.moveLeftFor(0.2)
+			elif self._angle > goodangle:
+				self.car.moveRightFor(0.2)
 			else:
 				self.car.moveForward()
-				self._needtostop = True
-				print("Going forward with angle " + str(self._angle))
+				self._moving = True
+				if self._movingfrom == -100:
+					self._movingfrom = time.time()
+			#self._moving = True
+			#if self._movingfrom == -100:
+			#	self._movingfrom = time.time()
 			self._lastacted = time.time()
-		elif time.time() > self._lastacted+0.2:
+		else:
 			self.car.halt()
-			if self._needtostop:
-				self.car.moveBackwardFor(0.2)
-				self._needtostop = False
+		#elif time.time() > self._lastacted + 0.2:
+		#	self.car.halt()
+		#	print("stopped")
 
 	def feed(self, coords):
 		self._angle    = coords.angle
@@ -48,5 +46,15 @@ class Values:
 		self._lastdata = time.time()
 		self._goToTarget()
 
+	#def stopif(self):
+	#	
+			
+
 	def halt(self):
+		timeacc = time.time() - self._movingfrom
+		print(str(timeacc))
+		if self._moving and timeacc > 0.1:
+			self.car.moveBackwardFor(0.25*timeacc)
 		self.car.halt()
+		self._moving = False
+		self._movingfrom = -100

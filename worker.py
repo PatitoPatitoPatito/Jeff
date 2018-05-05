@@ -39,15 +39,15 @@ _meterdiff     = utils.meterdiff
 _area    = _width * _height
 _middle  = _width / 2
 _single  = _width / _fov
-_minsize = _area * 0.01
+_minsize = _area * 0.0075
 
 #functions
-def process(picture):
+def process(picture, colors):
 #	original = picture.copy()
 	blurred = blur(picture)
 	#border = addborder(blurred, 6, [0,0,0])
 	hsv = converttohsv(blurred)
-	cfilter = filterbycolor(hsv)
+	cfilter = filterbycolor(hsv, colors)
 	masked = cv2.bitwise_and(blurred,blurred,mask=cfilter)
 	contours = findinnercontours(masked)
 	rectcont = findmaxrectangle(contours)
@@ -81,10 +81,29 @@ def addborder(matrice, size, color):
 def converttohsv(matrice):
 	return cv2.cvtColor(matrice, cv2.COLOR_BGR2HSV)
 
-def filterbycolor(matrice):
-	mask1 = cv2.inRange(matrice, utils.lower_1, utils.upper_1)
-	mask2 = cv2.inRange(matrice, utils.lower_2, utils.upper_2)
+def filterbycolor(matrice, colors):
+#	mask1 = cv2.inRange(matrice, utils.orange_lower_1, utils.orange_upper_1)
+#	mask2 = cv2.inRange(matrice, utils.orange_lower_2, utils.orange_upper_2)
+#	return cv2.addWeighted(mask1,1,mask2,1,0)
+	mask = np.zeros(matrice.shape[:2], dtype=np.uint8)
+	if "red" in colors:
+		mask = cv2.addWeighted(mask,1,getorange(matrice),1,0)
+	if "green" in colors:
+		mask = cv2.addWeighted(mask,1,getgreen(matrice),1,0)
+	if "blue" in colors:
+		mask = cv2.addWeighted(mask,1,getblue(matrice),1,0)
+	return mask
+
+def getorange(matrice):
+	mask1 = cv2.inRange(matrice, utils.orange_lower_1, utils.orange_upper_1)
+	mask2 = cv2.inRange(matrice, utils.orange_lower_2, utils.orange_upper_2)
 	return cv2.addWeighted(mask1,1,mask2,1,0)
+
+def getgreen(matrice):
+	return cv2.inRange(matrice, utils.green_lower, utils.green_upper)
+
+def getblue(matrice):
+	return cv2.inRange(matrice, utils.blue_lower, utils.blue_upper)
 
 def medianCanny(matrice, thresh1, thresh2):
 	median = numpy.median(matrice)

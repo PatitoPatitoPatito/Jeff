@@ -7,6 +7,7 @@ import threading
 import utils
 import time
 
+
 class Network:
         def __init__(self, ip, port):
 		self.port = port
@@ -16,12 +17,15 @@ class Network:
 		self.attempt = 0
 		self.latest = -100
 		self.movement = ""
+		self.dinput = ""
+		self.bound = None
 
 	def connect(self):
                 print("Attempting to connect to "+str(self.server_address[0])+":"+str(self.server_address[1]))
 		while True:
 			self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-			self.sock.settimeout(3)
+			if self.port == 6969:
+				self.sock.settimeout(2)
 			try:
                 		self.sock.connect(self.server_address)
 				#rec = self.sock.recv(8)
@@ -49,7 +53,8 @@ class Network:
 				print("Failed to connect! Retrying reconnection to " + self.server_address[0] + ":" + str(self.server_address[1]) + " in 1s...")
 				time.sleep(1)
 
-        def send(self, message):
+        def _reallysend(self):
+		message = self.bound
                 def background():
 			length = len(message)
 			byto = utils.int_to_bytes(length, 4)
@@ -73,9 +78,16 @@ class Network:
 					self.sock.send('FF'.decode('hex'))
 				else:
 					self.sock.send('FE'.decode('hex'))
-				rec = self.sock.recv(8)[2:]
-				if "ack" not in rec:
+				ack = self.sock.recv(8)[2:]
+				print("ack")
+				if ack != 'ack':
 					raise Exception("Did not receive reply")
+				#rec = self.sock.recv(1)
+				#print(rec)
+				#print(self.sock.recv(1)+self.sock.recv(1)+self.sock.recv(1))
+				#if "ack" not in rec:
+				#	raise Exception("Did not receive reply")
+				self.bound = None
 				#print("got ack")
 			except Exception as e:
 				print("Connection seems to have died!")
@@ -86,16 +98,28 @@ class Network:
 		sender.daemon = True
 		sender.start()
 
+	def send(self, message):
+		if self.bound is None:
+			self.bound = message
+			self._reallysend()
+
 	def _checker(self):
-		while True:
-			state = ""
+		if self.port == 42069:
 			while True:
-				char = self.sock.recv(1)
-				if ord(char) != 0:
-					state = state + char
-				else:
+				state = ""
+				for i in range(0,5):
+					state = state + self.sock.recv(1)
+				if ord(self.sock.recv(1)) != 0:
 					break
-			self.movement = state[1:-2]
+				self.movement = state
+				self.sock.send('FD'.decode('hex'))
+				self.sock.send('FE'.decode('hex'))
+				self.sock.send('FF'.decode('hex'))
+		elif self.port == 6666:
+			while True:
+				self.dinput = self.sock.recv(64)[1:]
+				print(self.dinput)
+
 
 	def startcheck(self):
 		checker = threading.Thread(target=self._checker)

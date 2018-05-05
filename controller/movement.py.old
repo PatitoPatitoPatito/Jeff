@@ -5,7 +5,6 @@ import cario
 import time
 from enum import Enum
 from direction import *
-import threading
 
 import inspect
 
@@ -122,20 +121,12 @@ class Movement:
 		self.halt()
 
 	def moveLeftFor(self, delay):
-		if self.dirX == DirX.H and self.dirY == DirY.H:
-			def delayBgL():
-				self.moveBackwardRightFor(delay*0.5)
-				self.moveForwardLeftFor(delay*0.5)
-			mv = threading.Thread(target=delayBgL)
-			mv.start()
+		self.moveBackwardRightFor(delay*0.5)
+		self.moveForwardLeftFor(delay*0.5)
 
 	def moveRightFor(self, delay):
-		if self.dirX == DirX.H and self.dirY == DirY.H:
-			def delayBgR():
-				self.moveBackwardLeftFor(delay*0.5)
-				self.moveForwardRightFor(delay*0.5)
-			mv = threading.Thread(target=delayBgR)
-			mv.start()
+		self.moveBackwardLeftFor(delay*0.5)
+		self.moveForwardRightFor(delay*0.5)
 
 	def turnLeftFor(self, delay):
 		self.turnLeft()

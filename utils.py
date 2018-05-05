@@ -8,10 +8,16 @@ import threading
 
 meterdiff = 95
 
-lower_1 = np.array([170,100,90])
-upper_1 = np.array([180,235,255])
-lower_2 = np.array([0,50,90])
-upper_2 = np.array([8,235,255])
+orange_lower_1 = np.array([170,150,140])
+orange_upper_1 = np.array([180,255,225])
+orange_lower_2 = np.array([0,150,140])
+orange_upper_2 = np.array([10,255,225])
+
+blue_lower = np.array([148,178,76])
+blue_upper = np.array([185,255,128])
+
+green_lower = np.array([70,100,89])
+green_upper = np.array([93,255,179])
 
 camera = 0
 fov = 60

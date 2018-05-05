@@ -16,33 +16,38 @@ coordinates = coordinates.Coordinates()
 
 car = carvalues.Values()
 
-pip = '192.168.220.64'
+pip = '192.168.220.82'
 iconn = network.Network(pip, utils.iport)
 cconn = network.Network(pip, utils.cport)
+dconn = network.Network(pip, utils.dport)
 
 def run():
 	mat = camera.tomat().copy()
-	picture,coords,_ = worker.process(mat)
+	#picture = mat.copy()
+	picture,coords,_ = worker.process(mat, dconn.dinput)
+	#print(cconn.movement)
 	if cconn.movement != "":
-		if cconn.movement[0] == 'u' and cconn.movement[2] == 'u':
-			car.car.stopY()
-		if cconn.movement[1] == 'u' and cconn.movement[3] == 'u':
-			car.car.stopX()
-		if cconn.movement[0] == 'p':
-			car.car.moveForward()
-		if cconn.movement[1] == 'p':
-			car.car.turnRight()
-		if cconn.movement[2] == 'p':
-			car.car.moveBackward()
-		if cconn.movement[3] == 'p':
-			car.car.turnLeft()
-		if coords:
-			iconn.found = True
-			if cconn.movement[4] != 'u':
+		if cconn.movement[4] == 'u':
+			if cconn.movement[0] == 'u' and cconn.movement[2] == 'u':
+				car.car.stopY()
+			if cconn.movement[1] == 'u' and cconn.movement[3] == 'u':
+				car.car.stopX()
+			if cconn.movement[0] == 'p':
+				car.car.moveForward()
+			if cconn.movement[1] == 'p':
+				car.car.turnRight()
+			if cconn.movement[2] == 'p':
+				car.car.moveBackward()
+			if cconn.movement[3] == 'p':
+				car.car.turnLeft()
+		elif cconn.movement[4] == 'p':
+			if coords:
+				iconn.found = True
 				print("Feeding " + str(coords))
 				car.feed(coords)
-		else:
-			iconn.found = False
+			else:
+				car.halt()
+				iconn.found = False
 #	matstr = utils.mattostr(worker.directtorect(mat,coords.cX))
 	matstr = utils.mattostr(picture)
 	iconn.send(matstr)
@@ -56,8 +61,11 @@ print("Launched!")
 while True:
 	iconn.connect()
 	cconn.connect()
+	dconn.connect()
 	cconn.startcheck()
-	while cconn.alive and iconn.alive:
+	dconn.startcheck()
+	while cconn.alive and iconn.alive and dconn.alive:
 		if camera.latest > coordinates.latest:
 			run()
+	break
 print("Shutting down")
