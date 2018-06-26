@@ -1,9 +1,14 @@
-# BoxFinder
+# RCJeff
 
 
-This is Jeff the car.
+Jeff is a toy car that has its remote and a Raspberry Pi attached to it.
 
-The goal is to control a toy RC car via the Raspberry Pi's GPIO pins by abusing the switches on the controller that came with the car, and make it follow an object.
+The Raspberry Pi controls the remote using its GPIO.
+
+Jeff can listen to commands and drive according to them.
+
+It can also follow an object that's in a certain color and shape.
+
 
 TODO:
 
