@@ -1,0 +1,39 @@
+<resources>
+    <string name="app_name">RC Jeff</string>
+    <string name="clevertext">clever text lol</string>
+    <string name="greater">&gt;</string>
+    <string name="smaller">&lt;</string>
+    <string name="play">Start</string>
+    <string name="videos">Videos</string>
+    <string name="help">Help</string>
+    <string name="about">About</string>
+    <string name="exit">Exit</string>
+
+    <string name="robidium_hs_2018">CLASSIFIEDDD</string>
+    <string name="birthday_september_11_2001">CLASSIFIEDDD</string>
+    <string name="id_328472264">CLASSIFIEDDD</string>
+    <string name="name_gadolinium">CLASSIFIEDDD</string>
+    <string name="dismiss">Dismiss</string>
+
+    <string name="leaveTitle">HOLD YOUR HORSE</string>
+    <string name="leaveText">Are you sure you want to leave?</string>
+    <string name="okay">Got it</string>
+    <string name="yes">Da</string>
+    <string name="no">Nyet</string>
+    <string name="back">Back</string>
+    <string name="upload">Upload</string>
+    <string name="left">&gt;</string>
+    <string name="right">&lt;</string>
+    <string name="visual">Icon</string>
+    <string name="name">GIVE IT A NAME</string>
+
+    <string name="inst0">These are the instructions for using RCJeff. Make sure you read them thoroughly!\nBelow are the navigation buttons marked with &gt; and &lt;.</string>
+    <string name="inst1">Plug the Raspberry Pi into the battery pack included at the back of the car by using the attatched cable.</string>
+    <string name="inst2">Go into your Wi-Fi settings and wait for the network "raspinet" to appear. Connect to that network using the password "fireitup".\nThere isn\'t supposed to be an online connection, but just a connection to the network. Once you are connected to the network, move on to the next instruction.</string>
+    <string name="inst3">Flip the car over and make sure that the power switch is switched on.</string>
+    <string name="inst4">Click start in the main activity and wait for your device to connect to the car.</string>
+    <string name="inst5">This is the control panel. Click the arrows to control the car\'s movement, or click "AUTO" to make it follow the orange rectangle.</string>
+    <string name="inst6">The car has two engines- one for back-forward, one for left-right. Note that the car is based off a cheap toy and since the motors are fragile and tend to heat and expand, you shouldn\'t fire each engine for more than a few seconds.</string>
+    <string name="inst7">You are ready to go! The next page includes troubleshooting options.</string>
+    <string name="inst8">1. My car moves but won\'t turn!\nYou may have destroyed the engines.\n\n2. I can\'t connect to the car!\nMake sure that you are connected to "raspinet".\n\n3. My car won\'t move at all!\nDid you flip the switch at the bottom of the car?\n\n4. It says that I\'m connected but the picture is frozen!\nKill the connection and restart it. This can happen rarely.</string>
+</resources>

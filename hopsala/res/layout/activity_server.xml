@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/serverlayout"
+    android:background="#ff4081">
+
+    <ImageView
+        android:id="@+id/im_camera"
+        android:layout_width="match_parent"
+        android:layout_height="287dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="10dp"
+        android:visibility="gone"
+        app:srcCompat="@drawable/nosignal" />
+
+    <Button
+        android:id="@+id/bt_kill"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true"
+        android:background="@drawable/exit"
+        android:onClick="server_kill"
+        android:text="Kill Server"
+        android:textColor="#FFFFFF"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/bt_backward"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_above="@+id/tv_hsv"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/down"
+        android:onClick="server_backward"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/bt_left"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_above="@+id/bt_backward"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="20dp"
+        android:layout_marginLeft="65dp"
+        android:background="@drawable/left"
+        android:onClick="server_left"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/bt_right"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_above="@+id/bt_backward"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="20dp"
+        android:layout_marginEnd="65dp"
+        android:background="@drawable/right"
+        android:onClick="server_right"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/bt_forward"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_above="@+id/bt_left"
+        android:layout_alignEnd="@+id/bt_backward"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/up"
+        android:onClick="server_forward"
+        android:textSize="14sp"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/tv_hsv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true"
+        android:layout_centerHorizontal="true"
+        android:textAlignment="center"
+        android:visibility="gone" />
+
+    <ToggleButton
+        android:id="@+id/sw_autonomous"
+        android:layout_width="75dp"
+        android:layout_height="50dp"
+        android:layout_alignBottom="@+id/bt_left"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/switch_auto"
+        android:textOff=" "
+        android:textOn=" "
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/im_status"
+        android:layout_width="wrap_content"
+        android:layout_height="25dp"
+        android:layout_below="@+id/im_camera"
+        android:layout_centerHorizontal="true"
+        android:visibility="gone"
+        app:srcCompat="@drawable/disconnected" />
+
+    <ImageView
+        android:id="@+id/im_found"
+        android:layout_width="50dp"
+        android:layout_height="75dp"
+        android:layout_below="@+id/im_status"
+        android:layout_toStartOf="@+id/im_status"
+        android:scaleType="centerCrop"
+        android:visibility="gone"
+        app:srcCompat="@drawable/credits" />
+
+    <ImageButton
+        android:id="@+id/ib_settings"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_below="@+id/im_status"
+        android:layout_marginRight="10dp"
+        android:layout_toEndOf="@+id/im_status"
+        android:background="@null"
+        android:onClick="SettingsButton"
+        android:scaleType="fitCenter"
+        android:visibility="gone"
+        app:srcCompat="@drawable/prefs" />
+
+    <ImageButton
+        android:id="@+id/ib_record"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_above="@+id/tv_hsv"
+        android:layout_alignEnd="@+id/ib_settings"
+        android:layout_marginRight="10dp"
+        android:background="@null"
+        android:onClick="RecordToggle"
+        android:scaleType="fitCenter"
+        android:visibility="gone"
+        app:srcCompat="@drawable/record_off" />
+
+    <TextView
+        android:id="@+id/tv_dbg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/im_camera"
+        android:visibility="invisible" />
+
+    <ImageView
+        android:id="@+id/im_wait"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_marginEnd="-305dp"
+        android:layout_toStartOf="@+id/im_status"
+        android:cropToPadding="true"
+        android:scaleType="fitXY"
+        android:visibility="gone"
+        app:srcCompat="@drawable/play" />
+
+    <TextView
+        android:id="@+id/tv_wait"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:text="Disconnected"
+        android:textAlignment="center"
+        android:textColor="#FFFFFF"
+        android:textSize="48sp"
+        android:visibility="visible" />
+
+</RelativeLayout>
