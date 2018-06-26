@@ -9,8 +9,6 @@ Jeff can listen to commands and drive according to them.
 
 It can also follow an object that's in a certain color and shape.
 
-
-
-TODO:
+# TODO:
 
 - Tidy up
